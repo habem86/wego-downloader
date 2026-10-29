@@ -1,0 +1,24 @@
+name: Tests and Arch package
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.10', '3.14']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m unittest -v test_honda_maps.py
+      - run: python -m py_compile honda_maps.py honda_maps_gui.py scripts/build_arch_package.py
+      - run: python scripts/build_arch_package.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-package-python-${{ matrix.python }}
+          path: dist/

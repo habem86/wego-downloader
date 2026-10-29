@@ -1,0 +1,13 @@
+2026-10-29 — Linux x86_64 cloud workspace, Python 3.12
+
+14 automated tests passed (python3 -m unittest -v test_honda_maps.py).
+Real signed Honda EU bonneville catalog parsed: 1493 entries; map bytes 26468657197.
+Three live map files (534, 840, 1725 bytes): expected lengths and MD5 matched.
+One additional live map file (1462272 bytes): resumed from byte 65536; server returned HTTP 206; final MD5 matched.
+Original license PACKAGE.SLIST downloaded unchanged: 15299 bytes. No checksum is provided in the catalog for this entry; content was not interpreted or modified.
+No complete map set downloaded. No real USB drive or navigation unit tested.
+GUI compiled successfully; GUI display/runtime not exercised (no X display in environment).
+Arch package archive inspected, but installation with pacman was not run (Arch environment unavailable).
+No signed catalog, VIN, credentials or map/license payloads are included in the package or source archive.
+Fresh standalone VIN/CZ/terms flow successfully retrieved a valid catalog using an in-memory cookie jar.
+Tk 9.0 imported successfully; no graphical display runtime test.

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Honda Map Downloader (unofficial)
+Comment=Independent Linux client for Honda bonneville EU map updates
+Exec=honda-maps-gui %u
+Icon=drive-removable-media
+Terminal=false
+Categories=Network;Utility;
+MimeType=x-scheme-handler/heremapdownloaderv2;

@@ -1,0 +1,2 @@
+#!/bin/sh
+exec python3 /usr/lib/honda-map-downloader-linux/honda_maps.py "$@"
