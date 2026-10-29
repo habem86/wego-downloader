@@ -1,0 +1,29 @@
+name: Publish prerelease
+on:
+  push:
+    tags:
+      - 'v*'
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m unittest -v test_honda_maps.py
+      - run: python scripts/build_arch_package.py
+      - name: Publish package, source archive and checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "$GITHUB_REF_NAME"
+          dist/honda-map-downloader-linux-0.1.0-1-any.pkg.tar.xz
+          dist/honda-map-downloader-linux-0.1.0-source.tar.xz
+          dist/SHA256SUMS
+          --verify-tag
+          --prerelease
+          --title "$GITHUB_REF_NAME — Experimental native Linux client"
+          --notes-file RELEASE_NOTES.md

@@ -24,7 +24,7 @@ PAYLOAD = {
 }
 SOURCES = sorted(set(PAYLOAD) | {
     'PKGBUILD', 'test_honda_maps.py', 'scripts/build_arch_package.py',
-    '.github/workflows/ci.yml', '.gitignore',
+    '.github/workflows/ci.yml', '.github/workflows/release.yml', 'RELEASE_NOTES.md', '.gitignore',
 })
 
 def add(archive, name, data, mode, epoch):
