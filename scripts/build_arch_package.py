@@ -9,7 +9,7 @@ import subprocess
 import tarfile
 
 ROOT = Path(__file__).resolve().parent.parent
-VERSION = '0.1.1'
+VERSION = '0.2.0'
 PACKAGE = 'honda-map-downloader-linux'
 PAYLOAD = {
     'honda_maps.py': (f'usr/lib/{PACKAGE}/honda_maps.py', 0o644),
@@ -21,9 +21,10 @@ PAYLOAD = {
     'USAGE.md': (f'usr/share/doc/{PACKAGE}/USAGE.md', 0o644),
     'VALIDATION.txt': (f'usr/share/doc/{PACKAGE}/VALIDATION.txt', 0o644),
     'LICENSE': (f'usr/share/licenses/{PACKAGE}/LICENSE', 0o644),
+    'interface.png': (f'usr/share/doc/{PACKAGE}/interface.png', 0o644),
 }
 SOURCES = sorted(set(PAYLOAD) | {
-    'PKGBUILD', 'test_honda_maps.py', 'scripts/build_arch_package.py',
+    'PKGBUILD', 'test_honda_maps.py', 'test_honda_maps_gui.py', 'scripts/build_arch_package.py',
     '.github/workflows/ci.yml', '.github/workflows/release.yml', 'RELEASE_NOTES.md', '.gitignore',
 })
 

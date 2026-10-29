@@ -4,13 +4,21 @@ An experimental, independent client for HERE Honda **bonneville EU** map updates
 
 The client retrieves a catalog through the Czech/European VIN portal or a `heremapdownloaderv2://` launch link, downloads files to their catalog-defined paths, checks file sizes and MD5 hashes, and resumes interrupted transfers. It preserves the original `PACKAGE.SLIST` license file unchanged. It does not format USB drives.
 
+## Interface
+
+![The native Honda map utility: source and USB destination cards above a compact transfer panel.](interface.png)
+
+A quiet, utilitarian interface: warm paper, charcoal, a restrained accent, and three numbered sections. **SOURCE** selects VIN or a private launch link; **DESTINATION** selects the USB root; **TRANSFER** shows catalog size, completed-file progress, and clear operation status. **Activity** switches the transfer panel to a scrollable log without expanding the window.
+
+The screenshot shows the actual idle Tk window on a virtual X display, with no private input or simulated map data. The interface uses system fonts and the Python standard library only.
+
 ## Install on Arch Linux
 
-Download `honda-map-downloader-linux-0.1.1-1-any.pkg.tar.xz` from the [v0.1.1 release](https://github.com/habem86/wego-downloader/releases/tag/v0.1.1).
+Download `honda-map-downloader-linux-0.2.0-1-any.pkg.tar.xz` from the [v0.2.0 release](https://github.com/habem86/wego-downloader/releases/tag/v0.2.0).
 
 ```bash
 sudo pacman -S --needed python tk
-sudo pacman -U ./honda-map-downloader-linux-0.1.1-1-any.pkg.tar.xz
+sudo pacman -U ./honda-map-downloader-linux-0.2.0-1-any.pkg.tar.xz
 honda-maps-gui
 ```
 
@@ -20,7 +28,7 @@ The package uses architecture `any` because it contains Python rather than archi
 
 **Upgrade from v0.1.0:** that version omitted the release folder and wrote map files directly into the USB root. Do not use that layout for an in-car update. Version 0.1.1 creates `HereMapsV1` automatically and refuses the old root layout rather than moving or deleting your files. See [migration notes](USAGE.md#upgrading-from-v010).
 
-1. Select **VIN — Czech/European portal**, enter your VIN, read the HERE terms, and confirm your own agreement. Alternatively, select **Portal launch link** and paste a link issued by the official portal.
+1. Select **VIN** (Czech/European portal), enter your VIN, read the HERE terms, and confirm your own agreement. Alternatively, select **LAUNCH LINK** and paste a link issued by the official portal.
 2. Select **Check catalog** to check update availability.
 3. Prepare a blank, mounted **32 GB FAT32 USB drive** according to Honda's instructions. Choose the **root directory of the mounted USB**, not `/dev/sdX` or a subdirectory.
 4. Select **Download to USB**. Map directories, `VRContext.Data`, and `PACKAGE.SLIST` go inside `HereMapsV1`, which is created automatically. The inspected catalog contained approximately 26.47 GB of map data.
@@ -79,7 +87,8 @@ The vehicle-created `MapDownload_PortalSite.url` is outside the map download. Th
 
 - 21 automated tests cover HTTP 206 resume, servers ignoring Range, inconsistent ranges and MD5 failures, existing files, symbolic links, unsafe paths, FAT filename collisions, unchanged license bytes, and consent before VIN lookup.
 - Live checks covered VIN lookup, European catalog retrieval, and sample downloads with matching MD5 hashes. A 1.46 MB file successfully resumed at byte 65,536 using HTTP 206.
-- **A complete download, writing to a real FAT32 USB drive, and acceptance by a vehicle have not been tested. The graphical window has not been run in this environment.** This is a prerelease for further validation.
+- 11 GUI behavior tests pass on virtual displays with Tk 8.6 and Tk 9. They cover consent, source privacy, confirmation, progress counting, catalog invalidation, errors, cancellation, temporary-file handling, and activity visibility. The window has been rendered and visually checked at 1040×870 and 940×820.
+- **A complete download, writing to a real FAT32 USB drive, installation on an actual Arch desktop, and acceptance by a vehicle have not been tested.** This is a prerelease for further validation.
 - Only European bonneville NDS catalogs with `nds.file` and `nds.drm` relations are supported. Other catalogs are rejected before writing.
 - The client does not bypass authorization or license protections. It uses download links issued by the official portal for an eligible vehicle.
 
@@ -89,6 +98,7 @@ See [VALIDATION.txt](VALIDATION.txt) for the recorded checks and coverage limits
 
 ```bash
 python3 -m unittest -v test_honda_maps.py
+xvfb-run -a python3 -m unittest -v test_honda_maps_gui.py
 python3 scripts/build_arch_package.py
 ```
 

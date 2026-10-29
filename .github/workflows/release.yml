@@ -14,6 +14,8 @@ jobs:
         with:
           python-version: '3.14'
       - run: python -m unittest -v test_honda_maps.py
+      - run: python -c "import tkinter; print(tkinter.TkVersion)"
+      - run: xvfb-run -a python -m unittest -v test_honda_maps_gui.py
       - run: python scripts/build_arch_package.py
       - name: Publish package, source archive and checksums
         env:

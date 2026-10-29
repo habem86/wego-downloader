@@ -17,3 +17,11 @@ Version 0.1.1 layout correction:
 The saved real catalog's 1493 entries now resolve under HereMapsV1 in preview mode; no new full map download was performed.
 Static original macOS evidence: MapCatalogManager::parseConfig at x86_64 VA 0x10002a750 reads parameters.path; its fallback at 0x10002a81c is the nine-byte prefix HereMapsV. Backend::startDownload joins the selected root and release prefix, and at 0x10001f6bd retrieves getCurrentRelease before appending it at 0x10001f6cd. The inspected distribution key is 1. The user screenshot independently shows HereMapsV1 containing the NDS tree and PACKAGE.SLIST.
 The user clarified that MapDownload_PortalSite.url is created by the car and should be left alone. It and unrelated USB-root items such as LOST.DIR are outside the fix.
+
+Version 0.2.0 GUI redesign:
+The earlier lack of graphical runtime coverage is superseded by the checks below for the new interface.
+- Rendered the real window under Xvfb with Debian system Python 3.13/Tk 8.6 and bundled Python 3.12/Tk 9.0. Inspected idle, link input, file progress and Activity states, including 1040x870 and minimum 940x820 sizes. Checked font fallback and a genuinely visible determinate progress fill.
+- 11 GUI behavior tests pass on both Tk versions: consent before VIN lookup; masked link mode; separate inputs when switching modes; cancellation of destination confirmation; completed-file counting; catalog invalidation on source changes; visible errors; stopped state; private 0600 temporary-source cleanup; sanitized startup exceptions; Activity toggling.
+- Existing 21 downloader regression tests remain unchanged and pass. No map transfer or filesystem-layout logic was modified for this release.
+- The published interface.png is a real idle-window screenshot with empty fields, not a mockup. It contains no VIN, signed link, drive path or simulated transfer data.
+- Full-map transfer, a physical USB, a real Arch desktop and vehicle acceptance remain unvalidated. Virtual X rendering and GUI tests do not establish those outcomes.

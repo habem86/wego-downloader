@@ -13,9 +13,15 @@ The client uses only the Python standard library. It does not partition or forma
 
 Run `honda-maps-gui` after installing the Arch package, or `python3 honda_maps_gui.py` from the source directory.
 
+The window has three numbered sections: **SOURCE**, **DESTINATION**, and **TRANSFER**. The primary action is **Download to USB**. Controls are disabled while the downloader is running; **Stop** stays available.
+
+**Activity** switches the transfer panel between a compact status view and the scrollable log. Errors appear in the status view even when Activity is closed. The progress bar counts completed files, including reused files; it does not estimate byte percentage or remaining time. A license file is marked complete when saved unchanged, not described as checksum-verified.
+
+Use **HIDE/SHOW** to control input visibility. Launch links are masked by default. VIN and launch-link modes retain separate inputs so switching modes does not reveal a private link as a VIN. Changing the source invalidates the earlier catalog summary; choosing a USB destination does not.
+
 ### Retrieve a catalog using a VIN
 
-1. Select **VIN — Czech/European portal**.
+1. Select **VIN** (Czech/European portal).
 2. Enter the 17-character VIN. This lookup uses the official Honda/HERE portal with Czech Republic selected and English as the page language.
 3. Read the linked HERE Terms of Use. If you agree, check the consent box. The client will not submit a VIN without this confirmation.
 4. Select **Check catalog**. The client obtains a launch link from the portal and retrieves its signed catalog.
@@ -27,7 +33,7 @@ If the portal cannot find the vehicle, check the VIN and the vehicle's Online Se
 1. Open the [official Honda portal](https://www.navigation.com/web/WFS/Shop-HondaEMEA-Site/en_GB/-/EUR/ViewHASDKHomepage-Start).
 2. Select the correct country and vehicle, enter the requested details, and complete the normal portal flow.
 3. Copy the address of the **Download** button beginning with `heremapdownloaderv2://`.
-4. In the client, select **Portal launch link**, paste the address, and select **Check catalog**.
+4. In the client, select **LAUNCH LINK**, paste the address, and select **Check catalog**.
 
 A signed launch link grants access to vehicle-specific update data. Keep it private. Do not post it in a GitHub issue.
 
@@ -62,7 +68,7 @@ When resuming, the client verifies the server's byte range. If the server ignore
 
 If a signed link expires, obtain a fresh link or perform a fresh VIN lookup, then select the same destination. Existing files with matching hashes can still be reused.
 
-Existing differing files, including a pre-existing license without a catalog checksum, are refused by default. Only enable **Allow replacing files with the same catalog paths** after checking the destination. Files outside the catalog are not removed.
+Existing differing files, including a pre-existing license without a catalog checksum, are refused by default. Only enable **Allow replacing existing catalog files** after checking the destination. Files outside the catalog are not removed.
 
 ## Terminal interface
 
@@ -124,6 +130,6 @@ The checksum file lists both the package and source archive; download both to ve
 
 This prerelease supports only Honda bonneville EU catalogs using `nds.file` and `nds.drm`. It does not implement other catalog formats or all features of the official application.
 
-Sample downloads, resume behavior, and catalog lookup have been tested. The full update, a real FAT32 USB write, the graphical window, package installation on Arch, and acceptance by a vehicle have not been validated in this environment. See [VALIDATION.txt](VALIDATION.txt).
+Sample downloads, resume behavior, and catalog lookup have been tested. The graphical window has been rendered on virtual X displays with Tk 8.6 and Tk 9 and covered by GUI behavior tests. The full update, a real FAT32 USB write, package installation on an actual Arch desktop, and acceptance by a vehicle have not been validated in this environment. See [VALIDATION.txt](VALIDATION.txt).
 
 Only links issued by the official portal are used. License bytes are not interpreted, altered, or bypassed. The application and its documentation are independent of HERE and Honda.

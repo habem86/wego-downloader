@@ -1,22 +1,22 @@
-Fix the USB directory layout to match the original downloader for Honda bonneville EU release `1`.
+A redesigned, minimal native interface for the Honda bonneville EU downloader.
 
-**Do not use v0.1.0's USB-root layout for an in-car update.** It omitted the enclosing release folder. Version 0.1.1 writes catalog entries under `HereMapsV1`, including `PACKAGE.SLIST`, and preserves nested paths such as `NavDB.CZE_1109/U1109`.
+- Warm paper and charcoal, restrained color accents, system sans/monospace typography, square controls, and three numbered sections: SOURCE, DESTINATION, TRANSFER.
+- Separate VIN and launch-link inputs. Signed links are masked by default and are not exposed when switching to VIN mode.
+- Mounted-drive free-space feedback, a clear HereMapsV1 destination hint, and a primary Download to USB action.
+- Real completed-file progress and clear catalog-ready, loading, error, stopped, and completed states. No invented byte percentages or ETA.
+- Activity switches to a scrollable log within the same panel. Errors remain visible without opening it. Inputs are locked during a transfer; Stop remains available.
+- Existing map paths, MD5 checks, resumable transfers, unchanged license handling, and USB-root protections are preserved. No new runtime dependencies: Python and Tk only.
 
-- Combine the catalog folder prefix (`parameters.path`, default `HereMapsV`) with each distribution release key (`1` in the inspected catalog).
-- Reject unsafe prefixes, accidental selection of `HereMapsV1` as the USB root, and legacy root-level map data before downloading. No automatic moves or deletions.
-- Update the graphical destination hint and English installation/migration guides.
-- Add seven layout regression tests; 21 tests pass locally.
-
-Install on Arch Linux:
+Install or upgrade on Arch Linux:
 
 ```bash
 sudo pacman -S --needed python tk
-sudo pacman -U ./honda-map-downloader-linux-0.1.1-1-any.pkg.tar.xz
+sudo pacman -U ./honda-map-downloader-linux-0.2.0-1-any.pkg.tar.xz
 honda-maps-gui
 ```
 
-Choose the mounted USB root. `HereMapsV1` is created automatically. To reuse a v0.1.0 download, follow the migration notes in USAGE.md, or use a separate prepared blank drive.
+See the repository README for a real screenshot and USAGE.md for the English guide.
 
-The vehicle-created MapDownload_PortalSite.url and unrelated USB-root items such as LOST.DIR are left untouched.
+Validation: 21 downloader tests and 11 GUI behavior tests passed locally. The interface was rendered and visually checked with Tk 8.6 and Tk 9 on virtual X displays. A complete map transfer, real FAT32 USB write, installation on an actual Arch desktop, and vehicle acceptance remain unvalidated. This remains an experimental prerelease.
 
-This remains an experimental prerelease. Full-map transfer, a real FAT32 USB write, graphical display, Arch installation, and vehicle acceptance are not yet validated. No VIN, signed links, catalogs, map data, or license payloads are included.
+No VIN, signed launch links, catalogs, map data, or license payloads are included. The vehicle-created .url file and unrelated USB-root items remain untouched.
