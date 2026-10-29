@@ -11,3 +11,9 @@ Arch package archive inspected, but installation with pacman was not run (Arch e
 No signed catalog, VIN, credentials or map/license payloads are included in the package or source archive.
 Fresh standalone VIN/CZ/terms flow successfully retrieved a valid catalog using an in-memory cookie jar.
 Tk 9.0 imported successfully; no graphical display runtime test.
+
+Version 0.1.1 layout correction:
+21 unit tests now pass, including a full synthetic-catalog download into a temporary USB directory. Tests verify HereMapsV1/NavDB.CZE_1109/U1109 paths, a license inside the same folder, no map entries at USB root, separate distribution releases, unsafe folder rejection, no accidental HereMapsV1 nesting, and refusal of the v0.1.0 legacy root layout without moving/deleting data.
+The saved real catalog's 1493 entries now resolve under HereMapsV1 in preview mode; no new full map download was performed.
+Static original macOS evidence: MapCatalogManager::parseConfig at x86_64 VA 0x10002a750 reads parameters.path; its fallback at 0x10002a81c is the nine-byte prefix HereMapsV. Backend::startDownload joins the selected root and release prefix, and at 0x10001f6bd retrieves getCurrentRelease before appending it at 0x10001f6cd. The inspected distribution key is 1. The user screenshot independently shows HereMapsV1 containing the NDS tree and PACKAGE.SLIST.
+The user clarified that MapDownload_PortalSite.url is created by the car and should be left alone. It and unrelated USB-root items such as LOST.DIR are outside the fix.

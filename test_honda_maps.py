@@ -1,6 +1,8 @@
 import hashlib
 import io
 import json
+import contextlib
+import sys
 from pathlib import Path
 import tempfile
 import unittest
@@ -70,13 +72,58 @@ class ClientTests(unittest.TestCase):
         for name in ['../escape','/abs','a/../escape','a\\escape','a//b','a/./b']:
             with self.subTest(name=name),self.assertRaises(h.DownloadError):h.plan(self.catalog(name))
     def test_license_last(self):
-        _,items=h.plan(self.catalog());self.assertEqual(items[-1]['name'],'PACKAGE.SLIST')
+        _,items=h.plan(self.catalog());self.assertEqual(items[-1]['name'],'HereMapsV1/PACKAGE.SLIST')
     def test_unsupported_relation_rejected(self):
         c=self.catalog();c['distribution']['1']['links'][1]['rel']='applicationConfiguration'
         with self.assertRaises(h.DownloadError):h.plan(c)
     def test_fat_duplicate_rejected(self):
         c=self.catalog();links=c['distribution']['1']['links'];links.append(dict(links[1],otherAttributes={'local-id':'navdb.test/TEST.NDS'}))
         with self.assertRaises(h.DownloadError):h.plan(c)
+    def test_catalog_paths_match_observed_usb_layout(self):
+        _,items=h.plan(self.catalog('NavDB.CZE_1109/3DO.NDS'))
+        self.assertEqual({x['name'] for x in items},{'HereMapsV1/NavDB.CZE_1109/3DO.NDS','HereMapsV1/PACKAGE.SLIST'})
+    def test_catalog_prefix_and_release_are_combined(self):
+        c=self.catalog();c['parameters']['path']='MapsV';c['distribution']['2']=c['distribution'].pop('1')
+        _,items=h.plan(c)
+        self.assertTrue(all(x['name'].startswith('MapsV2/') for x in items))
+    def test_multiple_releases_have_separate_paths(self):
+        c=self.catalog();c['distribution']['2']=c['distribution']['1']
+        _,items=h.plan(c)
+        self.assertEqual(len(items),4)
+        self.assertEqual({x['name'].split('/')[0] for x in items},{'HereMapsV1','HereMapsV2'})
+    def test_unsafe_prefix_or_release_is_rejected(self):
+        for value in ['../escape','/absolute','Maps/','.', '..', 'bad.']:
+            with self.subTest(value=value):
+                c=self.catalog();c['parameters']['path']=value
+                with self.assertRaises(h.DownloadError):h.plan(c)
+                c=self.catalog();c['distribution'][value]=c['distribution'].pop('1')
+                with self.assertRaises(h.DownloadError):h.plan(c)
+    def test_download_writes_map_tree_and_license_inside_release_folder(self):
+        with tempfile.TemporaryDirectory() as td:
+            base=Path(td);usb=base/'USB';usb.mkdir();catalog=base/'catalog.json'
+            c=self.catalog('NavDB.CZE_1109/U1109/test.nds');catalog.write_text(json.dumps(c))
+            def response(url,offset=0):
+                return Response(b'abcdef' if url.endswith('/file') else b'LICENSE')
+            with patch.object(sys,'argv',['honda_maps.py','--catalog',str(catalog),'--dest',str(usb),'--download']),patch.object(h,'request',side_effect=response),patch.object(h.os,'sync'),contextlib.redirect_stdout(io.StringIO()):
+                h.main()
+            self.assertEqual((usb/'HereMapsV1/NavDB.CZE_1109/U1109/test.nds').read_bytes(),b'abcdef')
+            self.assertEqual((usb/'HereMapsV1/PACKAGE.SLIST').read_bytes(),b'LICENSE')
+            self.assertFalse((usb/'NavDB.CZE_1109').exists())
+            self.assertFalse((usb/'PACKAGE.SLIST').exists())
+    def test_release_folder_cannot_be_selected_as_usb_root(self):
+        with tempfile.TemporaryDirectory() as td:
+            base=Path(td);usb=base/'HereMapsV1';usb.mkdir();catalog=base/'catalog.json';catalog.write_text(json.dumps(self.catalog()))
+            with patch.object(sys,'argv',['honda_maps.py','--catalog',str(catalog),'--dest',str(usb),'--download']),patch.object(h,'request') as request,contextlib.redirect_stdout(io.StringIO()):
+                with self.assertRaises(h.DownloadError):h.main()
+                request.assert_not_called()
+            self.assertEqual(list(usb.iterdir()),[])
+    def test_legacy_root_layout_is_not_silently_reused(self):
+        with tempfile.TemporaryDirectory() as td:
+            base=Path(td);usb=base/'USB';usb.mkdir();(usb/'NavDB.CZE_1109').mkdir();catalog=base/'catalog.json';catalog.write_text(json.dumps(self.catalog()))
+            with patch.object(sys,'argv',['honda_maps.py','--catalog',str(catalog),'--dest',str(usb),'--download']),patch.object(h,'request') as request,contextlib.redirect_stdout(io.StringIO()):
+                with self.assertRaises(h.DownloadError):h.main()
+                request.assert_not_called()
+            self.assertFalse((usb/'HereMapsV1').exists())
     def test_license_unchanged(self):
         with tempfile.TemporaryDirectory() as td:
             p=Path(td)/'PACKAGE.SLIST';i={'name':p.name,'url':'https://example.invalid/license','size':None,'md5':None}

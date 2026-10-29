@@ -36,10 +36,23 @@ A signed launch link grants access to vehicle-specific update data. Keep it priv
 1. Prepare and mount a blank FAT32 USB drive according to Honda's instructions.
 2. Select **Choose folder…** and choose the **root of the mounted USB drive**. Do not choose a `/dev` device or create an extra enclosing folder.
 3. Select **Download to USB** and confirm the destination.
-4. Wait until the client reports that all catalog files have downloaded. Map files are checked against catalog sizes and MD5 hashes. The original `PACKAGE.SLIST` license is saved last, unchanged; the catalog does not provide a checksum for that entry.
-5. Safely eject the drive using Linux and follow Honda's update instructions in the vehicle.
+4. The client creates `HereMapsV1` for release `1`; map files and `PACKAGE.SLIST` go inside it. Do not select an existing `HereMapsV1` directory as the destination.
+5. Wait until the client reports that all catalog files have downloaded. Map files are checked against catalog sizes and MD5 hashes. The original `PACKAGE.SLIST` license is saved last, unchanged; the catalog does not provide a checksum for that entry.
+6. Safely eject the drive using Linux and follow Honda's update instructions in the vehicle.
 
 The inspected catalog contained 26,468,657,197 bytes of map data plus the license. A future catalog may differ. The client checks free space with a margin before starting.
+
+## Upgrading from v0.1.0
+
+Version 0.1.0 incorrectly wrote `NavDB.*`, `VRContext.Data`, and `PACKAGE.SLIST` directly into the USB root. Do not use that layout for an in-car update. Version 0.1.1 uses the release folder, matching the observed original layout: `HereMapsV1/NavDB.*`, `HereMapsV1/VRContext.Data`, and `HereMapsV1/PACKAGE.SLIST` for release `1`.
+
+Use a prepared blank USB, or carefully relocate only the earlier client's catalog files and matching `.honda-part` files into `HereMapsV1` before resuming. Leave unrelated root files and folders in place. The client will not move or delete them automatically. If unsure which files belong to the old download, use a separate blank drive.
+
+Already-correct map files inside the release folder are checked by size and MD5 and can be reused. An existing license has no catalog checksum and requires explicit overwrite permission to be refreshed. Do not select `HereMapsV1` as the destination: choose its parent USB root.
+
+The default folder prefix is `HereMapsV`; a catalog's `parameters.path` can override it, and the distribution release key is appended. Unsafe prefixes and release identifiers are rejected before writing.
+
+The vehicle-created `MapDownload_PortalSite.url` is not part of this fix. Leave it and unrelated items such as `LOST.DIR` in the USB root; the client does not modify them.
 
 ## Stop and resume
 

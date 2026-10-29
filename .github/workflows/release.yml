@@ -20,8 +20,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: >-
           gh release create "$GITHUB_REF_NAME"
-          dist/honda-map-downloader-linux-0.1.0-1-any.pkg.tar.xz
-          dist/honda-map-downloader-linux-0.1.0-source.tar.xz
+          dist/*.pkg.tar.xz
+          dist/*-source.tar.xz
           dist/SHA256SUMS
           --verify-tag
           --prerelease

@@ -9,7 +9,7 @@ import subprocess
 import tarfile
 
 ROOT = Path(__file__).resolve().parent.parent
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 PACKAGE = 'honda-map-downloader-linux'
 PAYLOAD = {
     'honda_maps.py': (f'usr/lib/{PACKAGE}/honda_maps.py', 0o644),

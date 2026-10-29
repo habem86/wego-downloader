@@ -29,7 +29,7 @@ class App:
         self.accepted=tk.BooleanVar()
         ttk.Checkbutton(frame,text='For VIN lookup: I have read and agree to HERE Terms of Use',variable=self.accepted).pack(anchor='w')
         ttk.Button(frame,text='Read HERE Terms of Use',command=lambda:webbrowser.open('https://legal.here.com/en-gb/terms')).pack(anchor='w',pady=(2,10))
-        ttk.Label(frame,text='Destination: root folder of an already mounted, blank FAT32 USB').pack(anchor='w')
+        ttk.Label(frame,text='Destination: mounted FAT32 USB root (HereMapsV1 is created automatically)').pack(anchor='w')
         line=ttk.Frame(frame);line.pack(fill='x',pady=(4,8))
         self.destination=tk.StringVar();ttk.Entry(line,textvariable=self.destination).pack(side='left',fill='x',expand=True)
         ttk.Button(line,text='Choose folder…',command=self.choose).pack(side='right',padx=(8,0))

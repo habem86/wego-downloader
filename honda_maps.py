@@ -112,8 +112,14 @@ def plan(catalog):
     groups = catalog.get('distribution')
     if not isinstance(groups, dict):
         raise DownloadError('Missing distribution object.')
+    prefix = params.get('path', 'HereMapsV')
+    if not isinstance(prefix, str) or not re.fullmatch(r'[A-Za-z0-9_-][A-Za-z0-9._-]*', prefix) or prefix.endswith('.'):
+        raise DownloadError('Unsupported catalog folder prefix.')
     files, seen = [], set()
-    for group in groups.values():
+    for release, group in groups.items():
+        if not isinstance(release, str) or not re.fullmatch(r'[A-Za-z0-9_-][A-Za-z0-9._-]*', release) or release.endswith('.'):
+            raise DownloadError('Unsafe catalog release identifier.')
+        folder = prefix + release
         if not isinstance(group, dict) or not isinstance(group.get('links'), list):
             raise DownloadError('Unsupported distribution group.')
         for link in group['links']:
@@ -125,6 +131,8 @@ def plan(catalog):
             parts = name.split('/')
             if any(p in ('', '.', '..') or any(ord(c) < 32 for c in p) for p in parts):
                 raise DownloadError('Unsafe local-id.')
+            local_name = name
+            name = folder + '/' + local_name
             if name.casefold() in seen:
                 raise DownloadError('Duplicate destination in catalog.')
             seen.add(name.casefold())
@@ -136,10 +144,10 @@ def plan(catalog):
                 if not isinstance(checksum, str) or not re.fullmatch(r'md5:[0-9a-fA-F]{32}', checksum):
                     raise DownloadError('Missing or unsupported checksum.')
                 item.update(size=size, md5=checksum[4:].lower())
-            elif name != 'PACKAGE.SLIST':
+            elif local_name != 'PACKAGE.SLIST':
                 raise DownloadError('Unsupported license destination.')
             files.append(item)
-    if not files or not any(x['name'] == 'PACKAGE.SLIST' for x in files):
+    if not files or not any(x['name'].endswith('/PACKAGE.SLIST') for x in files):
         raise DownloadError('Catalog has no license file.')
     files.sort(key=lambda item: item["md5"] is None)  # License is the final file.
     return params, files
@@ -251,6 +259,7 @@ def main():
     params, files = plan(catalog)
     size = sum(x['size'] or 0 for x in files)
     print(f"Honda bonneville EU | {len(files)} files | {size / 1e9:.2f} GB + license")
+    print('Map folders: ' + ', '.join(sorted({x['name'].split('/')[0] for x in files})))
     print('Metadata and small downloads tested; complete USB/car validation is still required.')
     if not args.download:
         print('Preview only. Add --download --dest /path/to/mounted/USB to write files.')
@@ -260,6 +269,11 @@ def main():
     root = args.dest.expanduser().resolve(strict=True)
     if not root.is_dir() or str(root).startswith(('/dev/', '/proc/', '/sys/')) or root == Path('/'):
         raise DownloadError('Choose a mounted writable USB directory.')
+    folders = {x['name'].split('/')[0] for x in files}
+    if root.name.casefold() in {folder.casefold() for folder in folders}:
+        raise DownloadError('Select the USB root, not the HereMapsV release folder; it is created automatically.')
+    if (root / 'PACKAGE.SLIST').exists() or (root / 'VRContext.Data').exists() or any(root.glob('NavDB.*')):
+        raise DownloadError('Legacy map files found directly at USB root (v0.1.0 layout). Use a prepared blank USB or relocate only the old map files into the correct release folder before retrying. No files were moved.')
     targets = [(x, target_path(root, x['name'])) for x in files]
     # Validate all existing targets before starting; never silently replace data.
     need = 0

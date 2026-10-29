@@ -6,11 +6,11 @@ The client retrieves a catalog through the Czech/European VIN portal or a `herem
 
 ## Install on Arch Linux
 
-Download `honda-map-downloader-linux-0.1.0-1-any.pkg.tar.xz` from the [v0.1.0 release](https://github.com/habem86/wego-downloader/releases/tag/v0.1.0).
+Download `honda-map-downloader-linux-0.1.1-1-any.pkg.tar.xz` from the [v0.1.1 release](https://github.com/habem86/wego-downloader/releases/tag/v0.1.1).
 
 ```bash
 sudo pacman -S --needed python tk
-sudo pacman -U ./honda-map-downloader-linux-0.1.0-1-any.pkg.tar.xz
+sudo pacman -U ./honda-map-downloader-linux-0.1.1-1-any.pkg.tar.xz
 honda-maps-gui
 ```
 
@@ -18,10 +18,12 @@ The package uses architecture `any` because it contains Python rather than archi
 
 ## Use the application
 
+**Upgrade from v0.1.0:** that version omitted the release folder and wrote map files directly into the USB root. Do not use that layout for an in-car update. Version 0.1.1 creates `HereMapsV1` automatically and refuses the old root layout rather than moving or deleting your files. See [migration notes](USAGE.md#upgrading-from-v010).
+
 1. Select **VIN — Czech/European portal**, enter your VIN, read the HERE terms, and confirm your own agreement. Alternatively, select **Portal launch link** and paste a link issued by the official portal.
 2. Select **Check catalog** to check update availability.
 3. Prepare a blank, mounted **32 GB FAT32 USB drive** according to Honda's instructions. Choose the **root directory of the mounted USB**, not `/dev/sdX` or a subdirectory.
-4. Select **Download to USB**. The inspected catalog contained approximately 26.47 GB of map data.
+4. Select **Download to USB**. Map directories, `VRContext.Data`, and `PACKAGE.SLIST` go inside `HereMapsV1`, which is created automatically. The inspected catalog contained approximately 26.47 GB of map data.
 5. After completion, safely eject the USB in Linux and follow Honda's in-vehicle update instructions.
 
 VINs, launch links, catalogs, and license files are private. Do not post them in issues or public logs. They are not included in this repository or its release assets.
@@ -52,9 +54,30 @@ python3 honda_maps.py --download --dest /run/media/YOUR_USER/USB
 
 See the [usage guide](USAGE.md) for VIN lookup from the terminal, browser integration, and troubleshooting.
 
+## USB layout
+
+For the inspected catalog (release `1`), the expected layout is:
+
+```text
+USB root/
+└── HereMapsV1/
+    ├── NavDB.CZE_1109/
+    │   ├── 3DO.NDS
+    │   ├── CONTENT.CFG
+    │   ├── ...
+    │   └── U1109/
+    ├── other NavDB.* directories/
+    ├── VRContext.Data/
+    └── PACKAGE.SLIST
+```
+
+The folder combines `parameters.path` (default `HereMapsV`) and the distribution release identifier (`1`). `local-id` paths are relative to that folder. Select the USB root; do not manually select or nest `HereMapsV1`.
+
+The vehicle-created `MapDownload_PortalSite.url` is outside the map download. The client leaves it and unrelated root items such as `LOST.DIR` untouched.
+
 ## Validation and limitations
 
-- 14 automated tests cover HTTP 206 resume, servers ignoring Range, inconsistent ranges and MD5 failures, existing files, symbolic links, unsafe paths, FAT filename collisions, unchanged license bytes, and consent before VIN lookup.
+- 21 automated tests cover HTTP 206 resume, servers ignoring Range, inconsistent ranges and MD5 failures, existing files, symbolic links, unsafe paths, FAT filename collisions, unchanged license bytes, and consent before VIN lookup.
 - Live checks covered VIN lookup, European catalog retrieval, and sample downloads with matching MD5 hashes. A 1.46 MB file successfully resumed at byte 65,536 using HTTP 206.
 - **A complete download, writing to a real FAT32 USB drive, and acceptance by a vehicle have not been tested. The graphical window has not been run in this environment.** This is a prerelease for further validation.
 - Only European bonneville NDS catalogs with `nds.file` and `nds.drm` relations are supported. Other catalogs are rejected before writing.
